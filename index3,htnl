@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Student Management System</title>
+
+    <style>
+        /* =======================
+   YOUR ORIGINAL GRID CSS
+   (NOT CHANGED)
+======================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Cambria, sans-serif;
+        }
+
+        body {
+            background: #1a1a2e;
+        }
+
+        .conatiner {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(3, auto);
+            gap: 10px;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .conatiner>div {
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .2);
+            padding: 6px;
+            text-align: center;
+        }
+
+        .item-1 {
+            grid-column: 1/2;
+            grid-row: 1/4;
+        }
+
+        .item-2 {
+            grid-column: 3/4;
+            background: #0f3460;
+            border: 1px solid #fff;
+        }
+
+        .item-3 {
+            grid-column: 4/5;
+            background: #0f3460;
+            border: 1px solid #fff;
+        }
+
+        .item-4 {
+            grid-column: 5/6;
+            background: #16213e;
+            border: 1px solid #fff;
+        }
+
+        .item-5 {
+            grid-column: 3/6;
+            grid-row: 2/4;
+            background: #16213e;
+            border: 1px solid #fff;
+        }
+
+        .item-6 {
+            grid-column: 2/3;
+            grid-row: 1/4;
+            border: 1px solid #fff;
+        }
+
+        .item-7 {
+            grid-column: 1/6;
+            border: 1px solid #fff;
+            overflow-x: auto;
+        }
+
+        /* extra UI polish (NO GRID CHANGE) */
+        form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        button {
+            background: #4CAF50;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+
+        th {
+            background: #4CAF50;
+            color: #fff;
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .subject-box {
+            background: #fff;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            width: 90%;
+            max-width: 700px;
+        }
+
+        .close {
+            float: right;
+            font-size: 22px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="conatiner">
+
+        <!-- ADD MARKS -->
+        <div class="item-1">
+            <form id="marksForm">
+                <button type="button" onclick="openStudentModal()">Add Student</button>
+
+                <input id="searchRoll" placeholder="Enter Roll No" oninput="showStudentName()">
+                <input id="studentName" placeholder="Name" readonly>
+
+                <select id="testType" onchange="updateDashboard()">
+                    <option value="unitTest">Unit Test</option>
+                    <option value="midTest">Mid Test</option>
+                    <option value="finalTest">Final Test</option>
+                </select>
+
+                <input id="marathi" placeholder="Marathi">
+                <input id="hindi" placeholder="Hindi">
+                <input id="english" placeholder="English">
+
+                <button>Add Marks</button>
+            </form>
+        </div>
+
+        <!-- TOPPER / LOWER -->
+        <div class="item-2">
+            <h3>Overall</h3>
+            <div id="topper">Topper : -</div>
+            <div id="lower">Lower : -</div>
+        </div>
+
+        <!-- TEST PASS FAIL -->
+        <div class="item-3">
+            <h3>Test Result</h3>
+            <div id="testPF">-</div>
+        </div>
+
+        <div class="item-4"></div>
+
+        <!-- SUBJECT STATS -->
+        <div class="item-5">
+            <h3>Subject Pass Count</h3>
+            <div class="subject-grid">
+                <div class="subject-box">Marathi<br><span id="mStat">0</span></div>
+                <div class="subject-box">Hindi<br><span id="hStat">0</span></div>
+                <div class="subject-box">English<br><span id="eStat">0</span></div>
+            </div>
+        </div>
+
+        <div class="item-6"></div>
+
+        <!-- TABLE -->
+        <div class="item-7">
+            <input placeholder="Search table..." oninput="filterTable(this.value)">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Roll</th>
+                        <th>Name</th>
+                        <th>%</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- STUDENT MASTER MODAL -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeStudentModal()">×</span>
+            <input id="rollNo" placeholder="Roll No">
+            <input id="name" placeholder="Name">
+            <button onclick="addStudent()">Save</button>
+        </div>
+    </div>
+
+    <!-- DETAILS MODAL -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDetails()">×</span>
+            <div id="detailsBox"></div>
+        </div>
+    </div>
+
+    <script>
+        /* ======================
+           STORAGE
+        ====================== */
+        let studentsMaster = JSON.parse(localStorage.getItem("studentsMaster")) || [];
+        let studentMarks = JSON.parse(localStorage.getItem("studentMarks")) || [];
+
+        /* ======================
+           STUDENT MASTER
+        ====================== */
+        function addStudent() {
+            const r = Number(rollNo.value);
+            const n = name.value.trim();
+            if (!r || !n) return;
+
+            if (studentsMaster.some(s => s.rollNo === r)) return alert("Duplicate Roll");
+
+            studentsMaster.push({ rollNo: r, name: n });
+            localStorage.setItem("studentsMaster", JSON.stringify(studentsMaster));
+            rollNo.value = name.value = "";
+            closeStudentModal();
+        }
+
+        /* ======================
+           SEARCH STUDENT
+        ====================== */
+        function showStudentName() {
+            const r = Number(searchRoll.value);
+            const s = studentsMaster.find(x => x.rollNo === r);
+            studentName.value = s ? s.name : "-";
+        }
+
+        /* ======================
+           ADD MARKS
+        ====================== */
+        marksForm.onsubmit = e => {
+            e.preventDefault();
+            const r = Number(searchRoll.value);
+            const s = studentsMaster.find(x => x.rollNo === r);
+            if (!s) return alert("Student not found");
+
+            const test = testType.value;
+            const marks = {
+                Marathi: +marathi.value || 0,
+                Hindi: +hindi.value || 0,
+                English: +english.value || 0
+            };
+
+            let obj = studentMarks.find(x => x.rollNo === r);
+            if (!obj) {
+                obj = { rollNo: r, name: s.name };
+                studentMarks.push(obj);
+            }
+            obj[test] = marks;
+
+            localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+            renderTable();
+            updateDashboard();
+            marksForm.reset();
+        };
+
+        /* ======================
+           TABLE
+        ====================== */
+        function renderTable() {
+            tableBody.innerHTML = "";
+            studentMarks.forEach(s => {
+                let total = 0, count = 0, fail = false;
+                ["unitTest", "midTest", "finalTest"].forEach(t => {
+                    if (s[t]) {
+                        total += s[t].Marathi + s[t].Hindi + s[t].English;
+                        count += 3;
+                        if (s[t].Marathi < 35 || s[t].Hindi < 35 || s[t].English < 35) fail = true;
+                    }
+                });
+                const pct = count ? ((total / (count * 100)) * 100).toFixed(2) : "--";
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+      <td style="color:blue;cursor:pointer">${s.rollNo}</td>
+      <td>${s.name}</td>
+      <td>${pct}%</td>
+      <td>${fail ? "Fail" : "Pass"}</td>`;
+                tr.onclick = () => showDetails(s);
+                tableBody.appendChild(tr);
+            });
+        }
+
+        /* ======================
+           DETAILS
+        ====================== */
+        function showDetails(s) {
+            let html = `<h3>${s.name}</h3><table><tr>
+  <th>Test</th><th>M</th><th>H</th><th>E</th><th>%</th><th>Grade</th></tr>`;
+            ["unitTest", "midTest", "finalTest"].forEach(t => {
+                if (!s[t]) return;
+                const tot = s[t].Marathi + s[t].Hindi + s[t].English;
+                const p = ((tot / 300) * 100).toFixed(2);
+                html += `<tr><td>${t}</td>
+    <td>${s[t].Marathi}</td>
+    <td>${s[t].Hindi}</td>
+    <td>${s[t].English}</td>
+    <td>${p}%</td>
+    <td>${grade(p)}</td></tr>`;
+            });
+            html += "</table>";
+            detailsBox.innerHTML = html;
+            detailsModal.style.display = "flex";
+        }
+        function grade(p) {
+            if (p >= 80) return "A+";
+            if (p >= 60) return "B+";
+            if (p >= 50) return "B";
+            if (p >= 35) return "C";
+            return "Fail";
+        }
+
+        /* ======================
+           DASHBOARD FUNCTIONS
+        ====================== */
+        function updateDashboard() {
+            const test = testType.value;
+            let tp = -1, lp = 101, tn = "-", ln = "-";
+            let pass = 0, fail = 0;
+            let m = 0, h = 0, e = 0;
+
+            studentMarks.forEach(s => {
+                let tot = 0, c = 0;
+                ["unitTest", "midTest", "finalTest"].forEach(t => {
+                    if (s[t]) {
+                        tot += s[t].Marathi + s[t].Hindi + s[t].English;
+                        c += 3;
+                    }
+                });
+                if (c) {
+                    const p = (tot / (c * 100)) * 100;
+                    if (p > tp) { tp = p; tn = s.name; }
+                    if (p < lp) { lp = p; ln = s.name; }
+                }
+
+                if (s[test]) {
+                    if (s[test].Marathi >= 35 && s[test].Hindi >= 35 && s[test].English >= 35) pass++;
+                    else fail++;
+                    if (s[test].Marathi >= 35) m++;
+                    if (s[test].Hindi >= 35) h++;
+                    if (s[test].English >= 35) e++;
+                }
+            });
+
+            topper.innerText = `Topper: ${tn} (${tp.toFixed(2)}%)`;
+            lower.innerText = `Lower: ${ln} (${lp.toFixed(2)}%)`;
+            testPF.innerText = `Pass:${pass} Fail:${fail}`;
+            mStat.innerText = m;
+            hStat.innerText = h;
+            eStat.innerText = e;
+        }
+
+        /* ======================
+           UTILS
+        ====================== */
+        function filterTable(v) {
+            [...tableBody.rows].forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(v.toLowerCase()) ? "" : "none";
+            });
+        }
+        function openStudentModal() { studentModal.style.display = "flex"; }
+        function closeStudentModal() { studentModal.style.display = "none"; }
+        function closeDetails() { detailsModal.style.display = "none"; }
+
+        /* INIT */
+        renderTable();
+        updateDashboard();
+    </script>
+</body>
+
+</html>

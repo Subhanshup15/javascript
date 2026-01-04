@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+           * {
+       margin: 0;
+       padding: 0;
+       box-sizing: border-box;
+       font-family: Cambria, sans-serif;
+   }
+
+   body {
+       background: #1a1a2e;
+   }
+
+   .conatiner {
+       display: grid;
+       grid-template-columns: repeat(5, 1fr);
+       grid-template-rows: repeat(3, auto);
+       gap: 10px;
+       min-height: 100vh;
+       padding: 10px;
+   }
+
+   .conatiner>div {
+       border-radius: 6px;
+       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+       padding: 2px;
+       text-align: center;
+   }
+
+   .item-1 {
+       grid-column: 1 / 2;
+       grid-row: 1 / 4;
+   }
+
+
+   form {
+       background: #fff;
+       padding: 15px;
+       border-radius: 8px;
+   }
+
+   form input,
+   form select {
+       width: 100%;
+       padding: 8px;
+       margin: 6px 0;
+       border-radius: 5px;
+       border: 1px solid #ccc;
+   }
+
+   form button {
+       width: 100%;
+       padding: 10px;
+       margin-top: 10px;
+       background: #4CAF50;
+       color: #fff;
+       border: none;
+       border-radius: 5px;
+       cursor: pointer;
+       font-size: 13px;
+   }
+
+   .item-2 {
+       grid-column: 3 / 4;
+       background: #0f3460;
+       border: 1px solid #ffffff;
+       transition: 0.3s;
+   }
+
+   .item-3 {
+       grid-column: 4 / 5;
+       background: #0f3460;
+       border: 1px solid #ffffff;
+
+   }
+
+   .item-4 {
+       grid-column: 5 / 6;
+       background: #16213e;
+       padding: 20px;
+       border-radius: 15px;
+       border: 1px solid #ffffff;
+   }
+
+   .item-5 {
+       grid-column: 3 / 6;
+       grid-row: 2/ 4;
+       background: #16213e;
+       padding: 20px;
+       border-radius: 15px;
+       border: 1px solid #ffffff;
+   }
+
+   .subject-grid {
+       display: grid;
+       grid-template-columns: repeat(3, 1fr);
+       gap: 10px;
+       margin-top: 10px;
+   }
+
+   .subject-box {
+       background: #ffffff;
+       padding: 10px;
+       border-radius: 6px;
+       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+       text-align: center;
+   }
+
+   .subject-box p {
+       font-size: 14px;
+       margin-bottom: 5px;
+       font-weight: bold;
+   }
+
+   .subject-box span {
+       font-size: 18px;
+       color: #4CAF50;
+   }
+
+   .item-6 {
+       grid-column: 2 / 3;
+       grid-row: 1 / 4;
+       border: 1px solid #ffffff;
+
+   }
+
+   .item-7 {
+       grid-column: 1 / 6;
+       overflow-x: auto;
+       border: 1px solid #ffffff;
+   }
+
+   table {
+       width: 100%;
+       border-collapse: collapse;
+       background: #fff;
+       border-radius: 6px;
+       overflow: hidden;
+   }
+
+   th,
+   td {
+       padding: 8px;
+       border: 1px solid #ddd;
+       font-size: 14px;
+   }
+
+   th {
+       background: #4CAF50;
+       color: white;
+   }
+
+   .modal {
+       display: none;
+       position: fixed;
+       inset: 0;
+       background: rgba(0, 0, 0, 0.5);
+       justify-content: center;
+       align-items: center;
+   }
+
+   .modal-box {
+       background: #fff;
+       width: 300px;
+       padding: 20px;
+       border-radius: 10px;
+   }
+
+   .modal-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 10px;
+   }
+
+   .modal-box input {
+       width: 100%;
+       padding: 8px;
+       margin-bottom: 10px;
+   }
+
+   .btn-green {
+       width: 100%;
+       padding: 8px;
+       background: #4CAF50;
+       color: white;
+       border: none;
+       border-radius: 5px;
+       cursor: pointer;
+   }
+
+   .close-btn {
+       background: none;
+       border: none;
+       font-size: 18px;
+       cursor: pointer;
+   }
+
+   h4 {
+       color: #e94560;
+       text-align: center;
+       font-size: 2rem;
+   }
+
+   h2 {
+       color: #00d9ff;
+       margin-bottom: 15px;
+       display: flex;
+       align-items: center;
+       gap: 10px;
+   }
+
+   .subject-grid .number {
+       font-size: 2rem;
+       font-weight: bold;
+   }
+
+   .button {
+       display: inline-block;
+       padding: 6px 12px;
+       /* minimal size */
+       border: none;
+       border-radius: 4px;
+
+       background-color: #e94560;
+       color: #fff;
+       font-size: 12px;
+       cursor: pointer;
+
+       text-align: left;
+       /* align text to left */
+   }
+
+   .card {
+       background-color: #fff;
+       padding: 20px;
+       border-radius: 10px;
+       width: 350px;
+       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+       position: relative;
+       font-family: Arial, sans-serif;
+   }
+
+   .card h3,
+   .card h4 {
+       margin: 10px 0;
+   }
+
+   .card input {
+       width: 100%;
+       padding: 8px;
+       margin: 6px 0;
+       border-radius: 5px;
+       border: 1px solid #ccc;
+       box-sizing: border-box;
+   }
+
+   .card button {
+       width: 25%;
+       padding: 8px;
+       margin: 6px 0;
+       border-radius: 5px;
+       border: 1px solid #ccc;
+       box-sizing: border-box;
+   }
+
+   .card button {
+       background-color: #00796b;
+       color: #fff;
+       border: none;
+       cursor: pointer;
+   }
+
+   .card button:hover {
+       background-color: #004d40;
+   }
+
+   .card .close-btn {
+       position: absolute;
+       top: 10px;
+       right: 12px;
+       background: none;
+       border: none;
+       font-size: 1.2em;
+       cursor: pointer;
+       color: #999;
+   }
+
+   .card .close-btn:hover {
+       color: #d32f2f;
+   }
+
+   .card ul {
+       list-style: none;
+       padding-left: 0;
+       margin-top: 8px;
+   }
+
+   .alertcss {
+       display: none;
+       position: fixed;
+       z-index: 1000;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+       overflow: auto;
+       background-color: rgba(0, 0, 0, 0.4);
+   }
+
+   .alertcss-content {
+       background-color: #fefefe;
+       margin: 15% auto;
+       padding: 20px;
+       border: 1px solid #888;
+       width: 300px;
+       text-align: center;
+       border-radius: 8px;
+       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+       font-family: Arial, sans-serif;
+       position: relative;
+   }
+
+   .alertcss-close {
+       color: #aaa;
+       position: absolute;
+       top: 5px;
+       right: 10px;
+       font-size: 22px;
+       font-weight: bold;
+       cursor: pointer;
+   }
+
+   .alertcss-close:hover {
+       color: black;
+   }
+
+   .modal {
+       display: none;
+       position: fixed;
+       z-index: 1;
+       left: 0;
+       top: 0;
+       width: 100%;
+       height: 100%;
+      
+       background-color: rgba(0, 0, 0, 0.4);
+   }
+
+   .modal-content {
+       background-color: #fefefe;
+       margin: 10% auto;
+       padding: 20px;
+       border: 1px solid #888;
+       width: 90%;
+       /* Use a percentage width */
+       max-width: 700px;
+       /* Limit max width */
+       overflow-x: auto;
+       /* Add horizontal scroll if content too wide */
+       box-sizing: border-box;
+       /* Ensure padding doesn't add to width */
+   }
+
+
+   .close {
+       color: #aaa;
+       float: right;
+       font-size: 28px;
+       font-weight: bold;
+       cursor: pointer;
+   }
+
+   .close:hover {
+       color: black;
+   }
+    </style>
+</head>
+<body>
+     <div class="conatiner">
+
+        <div class="item-1">
+
+
+            <form id="addStudentMarks">
+                <div style="float: left;" class="button" onclick="openModal()">Add Student</div>
+                <input type=" number" id="searchRollNo" placeholder="Enter Roll No" oninput="showStudentName()">
+                <input id="displayStudentName" placeholder="Name" readonly>
+
+                <select id="testType">
+                    <option value="unitTest">Unit Test</option>
+                    <option value="midTest">Mid Test</option>
+                    <option value="finalTest">Final Test</option>
+                </select>
+
+                <input id="marathi" placeholder="Marathi Marks ( 0-100)"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                <input id="hindi" placeholder="Hindi Marks (0-100)"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                <input id="english" placeholder="English Marks(0-100)"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+
+                <button type="submit">Add Marks</button>
+            </form>
+        </div>
+
+        <div class="item-2">
+            <h2>Topper %</h2>
+            <div id="topper">0%</div>
+        </div>
+
+        <div class="item-3">
+            <h2>Pass / Fail</h2>
+            <span id="passCount">0</span><br>
+
+        </div>
+
+        <div class="item-4">4</div>
+
+        <div class="item-5">
+            <h2>Subject Average</h2>
+
+            <div class="subject-grid">
+                <div class="subject-box number ">
+                    <p>Marathi</p>
+                    <span id="avgMarathi">0</span>
+                </div>
+
+                <div class="subject-box">
+                    <p>Hindi</p>
+                    <span id="avgHindi">0</span>
+                </div>
+
+                <div class="subject-box">
+                    <p>English</p>
+                    <span id="avgEnglish">0</span>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="item-6">6</div>
+
+        <div class="item-7">
+            <table border="1" cellspacing="0" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Percentage</th>
+                        <th>Status</th>
+                        <th colspan="2">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="detailsContainer" style="margin-top:20px;"></div>
+
+        </div>
+
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content"> <span class="close">&times;</span>
+            <div id="detailsContainer"></div>
+        </div>
+    </div>
+
+
+
+    <div class="modal" id="modal">
+        <div class="card">
+            <h3>Add Student</h3>
+            <div class="close-btn" onclick="closeModal()">✕</div>
+            <form id="addStudentMaster">
+                <input type="number" id="rollNo" placeholder="Roll No" required>
+                <input type="text" id="Name" placeholder="Name" required>
+                <button id="addStudentBtn">Add Student</button>
+            </form>
+        </div>
+
+    </div>
+    <!-- Alert Modal -->
+    <div class="alertcss" id="alertModal">
+        <div class="alertcss-content">
+            <span class="alertcss-close" id="closeAlertModal">&times;</span>
+            <p id="alertModalMessage">-</p>
+        </div>
+    </div>
+</body>
+<script>
+
+    const alertModal = document.getElementById("alertModal");
+const alertModalMessage = document.getElementById("alertModalMessage");
+const closeAlertModal = document.getElementById("closeAlertModal");
+
+const addStudentMaster = document.getElementById("addStudentMaster");
+const addStudentMarks = document.getElementById("addStudentMarks");
+
+let studentsMaster = JSON.parse(localStorage.getItem("studentsMaster")) || [];
+
+let studentMarks = JSON.parse(localStorage.getItem("studentMarks")) || [];
+
+
+// console.log("studentMarks==>", studentMarks)
+
+
+addStudentMaster.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const rollNO = Number(document.getElementById("rollNo").value);
+    const name = document.getElementById("Name").value;
+
+    const rollNumberID = studentsMaster.find(s => s.rollNo === rollNO);
+    if (rollNumberID) {
+        alert("RollNo already exists");
+        return;
+    }
+    studentsMaster.push({
+        rollNo: rollNO,
+        name: name
+    });
+    localStorage.setItem("studentsMaster", JSON.stringify(studentsMaster));
+    addStudentMaster.reset();
+    showAlert("Student Added");
+});
+
+/// search rollNO
+function showStudentName() {
+    const rollNo = Number(document.getElementById("searchRollNo").value);
+    const student = studentsMaster.find(s => s.rollNo === rollNo);
+    document.getElementById("displayStudentName").value = student ? student.name : "-";
+}
+
+
+
+/////addStudentMarks 
+
+// addStudentMarks.addEventListener("submit", function (event) {
+//     event.preventDefault();
+
+//     const rollNo = Number(document.getElementById("searchRollNo").value);
+//     const student = studentsMaster.find(s => s.rollNo === rollNo);
+//     if (!student) {
+//         return alert("Student not found!");
+//     }
+
+//     const testType = document.getElementById("testType").value;
+//     console.log("testType==>", testType)
+
+//     const existingStudent = studentMarks.find(s => s.rollNo === rollNo);
+//     console.log("")
+//     if (existingStudent && existingStudent[testType]) {
+//         showAlert(`Marks for ${testType} are already filled for this student`);
+//         return;
+//     }
+//     const marksEntry = {
+//         rollNo,
+//         name: student.name,
+//         [testType]: {
+//             Marathi: Number(document.getElementById("marathi").value),
+//             Hindi: Number(document.getElementById("hindi").value),
+//             English: Number(document.getElementById("english").value),
+//         }
+//     };
+
+//     // Check if student already has marks saved
+//     const existingIndex = studentMarks.findIndex(s => s.rollNo === rollNo);
+//     if (existingIndex >= 0) {
+//         studentMarks[existingIndex] = {
+//             ...studentMarks[existingIndex],
+//             ...marksEntry
+//         };
+//     } else {
+//         studentMarks.push(marksEntry);
+//     }
+
+//     localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+//     showAlert("Marks saved!");
+//     tabledata()
+//     addStudentMarks.reset();
+// });
+
+// Add/Edit Student Marks
+addStudentMarks.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const rollNo = Number(document.getElementById("searchRollNo").value);
+    const student = studentsMaster.find(s => s.rollNo === rollNo);
+    if (!student) {
+        return alert("Student not found!");
+    }
+
+    const testType = document.getElementById("testType").value;
+
+    const marksObj = {
+        Marathi: Number(document.getElementById("marathi").value),
+        Hindi: Number(document.getElementById("hindi").value),
+        English: Number(document.getElementById("english").value),
+    };
+
+    const existingIndex = studentMarks.findIndex(s => s.rollNo === rollNo);
+
+    if (existingIndex >= 0) {
+        studentMarks[existingIndex] = {
+            ...studentMarks[existingIndex],
+            [testType]: marksObj,
+            name: student.name
+        };
+        showAlert(`Marks for ${testType} updated for ${student.name}`);
+    } else {
+        // New student marks entry
+        studentMarks.push({
+            rollNo,
+            name: student.name,
+            [testType]: marksObj
+        });
+        showAlert(`Marks for ${testType} saved for ${student.name}`);
+    }
+
+    localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+    tabledata();
+    addStudentMarks.reset();
+});
+
+/////////table 
+
+
+function tabledata() {
+    let tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+    for (let i = 0; i < studentMarks.length; i++) {
+        let student = studentMarks[i];
+        console.log("student==>", student)
+        let tests = ["unitTest", "midTest", "finalTest"];
+
+        let totalMarks = 0;
+        let totalSubjects = 0;
+        let hasFail = false;
+
+        // Loop through all tests
+        for (let j = 0; j < tests.length; j++) {
+            let testKey = tests[j];
+            let test = student[tests[j]] || {};
+
+            let m = test.Marathi || 0;
+            let h = test.Hindi || 0;
+            let e = test.English || 0;
+
+            if (m + h + e > 0) {
+                totalMarks += m + h + e;
+                totalSubjects += 3;
+            }
+
+            if (m < 35 || h < 35 || e < 35) {
+                hasFail = true;
+            }
+
+            if (m >= 35) {
+                marathiPass++;
+            } else if (m > 0) {
+                marathiFail++;
+            }
+
+            if (h >= 35) {
+                hindiPass++;
+            } else if (h > 0) {
+                hindiFail++;
+            }
+
+            if (e >= 35) {
+                englishPass++;
+            } else if (e > 0) {
+                englishFail++;
+            }
+        }
+
+        let percent;
+        if (totalSubjects > 0) {
+            percent = ((totalMarks / (totalSubjects * 100)) * 100).toFixed(2);
+        } else {
+            percent = "--";
+        }
+        if (!hasFail && percent > highestPercent) {
+            highestPercent = percent;
+            topper = student;
+        }
+
+        let grade;
+        if (hasFail) {
+            grade = "Fail";
+            failCount++;
+
+        } else {
+            grade = "Pass";
+            passCount++;
+        }
+
+        totalCount = passCount + failCount;
+        passPercent = ((passCount / totalCount) * 100).toFixed(2);
+        failPercent = ((failCount / totalCount) * 100).toFixed(2);
+
+
+        let row = `
+        <tr>
+            <td class="rollNo" style="cursor:pointer;color:blue;text-decoration:underline">${student.rollNo}</td>
+            <td>${student.name}</td>
+            <td>${percent}%</td>
+            <td>${grade}</td>
+             <td>
+                    <button onclick="editStudent(${student.rollNo})">Edit</button>
+                    <button onclick="deleteStudent(${student.rollNo})">Delete</button>
+                </td>
+        </tr>
+    `;
+
+
+        tableBody.innerHTML += row;
+
+
+    }
+    document.getElementById("topper").textContent = `${topper.name}:${highestPercent}%`
+    document.getElementById("passCount").innerHTML =
+        `Pass: ${passCount} (${passPercent}%)<br>Fail: ${failCount} (${failPercent}%)`;
+
+
+    document.querySelectorAll(".rollNo").forEach((cell, index) => {
+        cell.addEventListener("click", () => {
+            showDetails(studentMarks[index]);
+        });
+        console.log("==>", cell)
+    });
+}
+
+
+
+function calculateGrade(percent) {
+    if (percent >= 80) return "A+";
+    if (percent >= 60) return "B+";
+    if (percent >= 50) return "B";
+    if (percent >= 40) return "C+";
+    if (percent >= 35) return "C";
+    return "Fail";
+}
+
+
+function showDetails(student) {
+    let modal = document.getElementById("detailsModal");
+    let container = modal.querySelector("#detailsContainer");
+    let tests = ["unitTest", "midTest", "finalTest"];
+    const testNames = {
+        unitTest: "Unit Test",
+        midTest: "Mid Test",
+        finalTest: "Final Test"
+    };
+
+
+    let html = `
+    <h3 style="text-align: center;"> ${student.name}</h3>
+
+        <table border="1" style="border-collapse:collapse;margin-top:10px">
+            <tr>
+                <th>Test</th>
+                <th>Marathi</th>
+                <th>Hindi</th>
+                <th>English</th>
+                <th>Total</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Result</th>
+            </tr>
+    `;
+
+    for (let i = 0; i < tests.length; i++) {
+        let testKey = tests[i];
+        let test = student[testKey] || {};
+
+        let marathi = 0;
+        if (test.Marathi) {
+            marathi = test.Marathi;
+        }
+
+        let hindi = 0;
+        if (test.Hindi) {
+            hindi = test.Hindi;
+        }
+
+        let english = 0;
+        if (test.English) {
+            english = test.English;
+        }
+
+        let total = marathi + hindi + english;
+        let percent = ((total / 300) * 100).toFixed(2);
+
+
+        let grade = calculateGrade(percent);
+
+        let result;
+        if (marathi < 35 || hindi < 35 || english < 35) {
+            result = "Fail";
+        } else if (total === 0) {
+            result = "NA";
+        } else {
+            result = "Pass";
+        }
+
+        let displayMarathi;
+        if (marathi > 0) {
+            displayMarathi = marathi;
+        } else {
+            displayMarathi = "--";
+        }
+
+        let displayHindi;
+        if (hindi > 0) {
+            displayHindi = hindi;
+        } else {
+            displayHindi = "--";
+        }
+
+        let displayEnglish;
+        if (english > 0) {
+            displayEnglish = english;
+        } else {
+            displayEnglish = "--";
+        }
+
+        html += `
+            <tr>
+                <td>${testNames[testKey]}</td>
+                <td>${displayMarathi}</td>
+                <td>${displayHindi}</td>
+                <td>${displayEnglish}</td>
+                <td>${total}</td>
+                <td>${percent}%</td>
+                <td>${grade}</td>
+                <td>${result}</td>
+            </tr>
+        `;
+    }
+    html += `</table>`;
+    container.innerHTML = html;
+
+    modal.style.display = "block";
+
+    let span = modal.querySelector(".close");
+    span.onclick = function () {
+        modal.style.display = "none";
+    };
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+
+}
+
+
+tabledata();
+
+
+
+
+
+
+function editStudent(rollNo) {
+    const student = studentMarks.find(s => s.rollNo === rollNo);
+    console.log("student==>", student);
+    if (!student) return showAlert("Student not found!");
+    document.getElementById("searchRollNo").value = rollNo;
+    document.getElementById("displayStudentName").value = student.name; // Make sure your input has id="name"
+    const testTypeSelect = document.getElementById("testType");
+    fillMarks(student, testTypeSelect.value);
+    testTypeSelect.onchange = function () {
+        fillMarks(student, testTypeSelect.value);
+    };
+}
+function fillMarks(student, testType) {
+    const test = student[testType] || { Marathi: 0, Hindi: 0, English: 0 };
+    document.getElementById("marathi").value = test.Marathi || 0;
+    document.getElementById("hindi").value = test.Hindi || 0;
+    document.getElementById("english").value = test.English || 0;
+}
+
+function deleteStudent(rollNo) {
+    const index = studentMarks.findIndex(s => s.rollNo === rollNo);
+    if (index === -1) return showAlert("Student not found!");
+    if (confirm("Are you sure you want to delete all marks for this student?")) {
+        studentMarks.splice(index, 1);
+        localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+        showAlert("Student marks deleted!");
+        tabledata();
+    }
+}
+
+
+
+
+
+
+
+///add model 
+function openModal() {
+    document.getElementById("modal").style.display = "flex";
+}
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// alertModal  
+
+function showAlert(message) {
+    alertModalMessage.textContent = message;
+    alertModal.style.display = "block";
+
+    // Automatically hide after 2 seconds
+    setTimeout(() => {
+        alertModal.style.display = "none";
+        addStudentMarks.reset();
+    }, 1000);
+
+}
+
+closeAlertModal.onclick = function () {
+    alertModal.style.display = "none";
+}
+
+window.onclick = function (event) {
+    if (event.target == alertModal) {
+        alertModal.style.display = "none";
+    }
+}
+</script>
+</html>
