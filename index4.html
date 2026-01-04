@@ -14,7 +14,7 @@
         }
 
         body {
-            background: #1a1a2e;
+            background: #dad7cd;
             color: #222;
         }
 
@@ -249,6 +249,21 @@
             gap: 10px;
         }
 
+        .subject-box-1 {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: left;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, .18);
+            /* font-weight: 500; */
+        }
+
+        .subject-box-1 span {
+            margin-top: 6px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
         .subject-box {
             background: #ffffff;
             border-radius: 10px;
@@ -345,6 +360,7 @@
                 <input id="english" placeholder="English" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
 
                 <button type="submit">Add Marks</button>
+                <button type="button" onclick="resetAddMarksForm()">Reset</button>
             </form>
         </div>
 
@@ -376,12 +392,12 @@
 
 
         <div class="item-3">
-            <h3>Test Result</h3>
+            <h3>Final Result</h3>
             <div class="result-main-box">
                 <div class="result-box">
                     <h5>Pass</h5>
                     <div id="passCount">-</div>
-                    <p>percentage</p>
+                    <p>Percentage</p>
                     <div id="passCountPer">-</div>
                 </div>
 
@@ -396,32 +412,33 @@
         </div>
 
 
-        <div class="item-4"></div>
-
-        <div class="item-5">
+        <div class="item-4">
             <h3> As Per Test Percentage</h3>
             <div class="subject-grid">
-                <div class="subject-box">
-                    Unit Test
+                <div class="subject-box-1">
+                    <h4 style="color: #00d9ff; font-size: 2vh;"> Unit Test</h4>
                     <div>Pass: <span id="unitPass">0</span></div>
                     <div>Fail: <span id="unitFail">0</span></div>
-                    <div>%: <span id="unitPer">0%</span></div>
+                    <span id="unitPer">0%</span>
                 </div>
 
-                <div class="subject-box">
-                    Mid Test
+                <div class="subject-box-1">
+                    <h4 style="color: #00d9ff; font-size: 2vh;">Mid Test</h4>
                     <div>Pass: <span id="midPass">0</span></div>
                     <div>Fail: <span id="midFail">0</span></div>
-                    <div>%: <span id="midPer">0%</span></div>
+                    <span id="midPer">0%</span>
                 </div>
 
-                <div class="subject-box">
-                    Final Test
+                <div class="subject-box-1">
+                    <h4 style="color: #00d9ff; font-size: 2vh;">Final Test</h4>
                     <div>Pass: <span id="finalPass">0</span></div>
                     <div>Fail: <span id="finalFail">0</span></div>
-                    <div>%: <span id="finalPer">0%</span></div>
+                    <span id="finalPer">0%</span>
                 </div>
             </div>
+        </div>
+
+        <div class="item-5">
 
             <h3>Test Wise Subject Pass / Fail</h3>
 
@@ -451,7 +468,7 @@
 
 
         <div class="item-6">
-            <h3 style="color:#00d9ff;">Student Master</h3>
+            <h3>Student Master</h3>
 
             <input type="text" id="studentMasterSearch" placeholder="Search Roll No or Name"
                 oninput="filterStudentMaster()">
@@ -481,6 +498,7 @@
                         <th>Name</th>
                         <th>%</th>
                         <th>Status</th>
+                        <th>Grade</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -598,6 +616,13 @@
         showAlert("Student Added");
     });
 
+    function resetAddMarksForm() {
+        const form = document.getElementById("addStudentMarks");
+        form.reset();
+
+        // clear readonly field safely
+        document.getElementById("studentName").value = "";
+    }
 
 
 
@@ -606,30 +631,53 @@
     addStudentMarks.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        const r = Number(searchRoll.value);
-        const student = studentsMaster.find(s => s.rollNo === r);
-        if (!student) return alert("Student not found");
+        const rollNo = Number(document.getElementById("searchRoll").value);
+        const student = studentsMaster.find(s => s.rollNo === rollNo);
 
-        const test = testType.value;
-        const marks = {
-            Marathi: +marathi.value || 0,
-            Hindi: +hindi.value || 0,
-            English: +english.value || 0
+        if (!student) {
+            return alert("Student not found!");
+        }
+
+        const testType = document.getElementById("testType").value;
+        console.log("testType==>", testType);
+
+        const existingStudent = studentMarks.find(s => s.rollNo === rollNo);
+
+        if (existingStudent && existingStudent[testType]) {
+            showAlert(`Marks for ${testType} are already filled for this student`);
+            return;
+        }
+
+        const marksEntry = {
+            rollNo,
+            name: student.name,
+            [testType]: {
+                Marathi: Number(document.getElementById("marathi").value),
+                Hindi: Number(document.getElementById("hindi").value),
+                English: Number(document.getElementById("english").value)
+            }
         };
 
-        let obj = studentMarks.find(x => x.rollNo === r);
-        if (!obj) {
-            obj = { rollNo: r, name: student.name };
-            studentMarks.push(obj);
-        }
-        obj[test] = marks;
+
+        studentMarks.push(marksEntry);
+
 
         localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
         renderTable();
         updateDashboard();
         addStudentMarks.reset();
+
         showAlert("Student Marks Added");
     });
+
+    function grade(p) {
+        p = Number(p);
+        if (p >= 80) return "A+";
+        if (p >= 60) return "B+";
+        if (p >= 50) return "B";
+        if (p >= 35) return "C";
+        return "Fail";
+    }
 
     /* ===== TABLE ===== */
     function renderTable() {
@@ -653,7 +701,7 @@
             let testTypes = ["unitTest", "midTest", "finalTest"];
 
 
-            // ---------- UNIT TEST ----------
+
             if (student.unitTest) {
                 let m = student.unitTest.Marathi;
                 let h = student.unitTest.Hindi;
@@ -666,7 +714,7 @@
                     unitPass++;
                 }
             }
-            // ---------- MID TEST ----------
+
             if (student.midTest) {
                 let m = student.midTest.Marathi;
                 let h = student.midTest.Hindi;
@@ -680,7 +728,7 @@
                 }
             }
 
-            // ---------- FINAL TEST ----------
+
             if (student.finalTest) {
                 let m = student.finalTest.Marathi;
                 let h = student.finalTest.Hindi;
@@ -733,13 +781,15 @@
                 percentage = ((total / (count * 100)) * 100).toFixed(2);
             }
 
+
             let tr = document.createElement("tr");
 
             tr.innerHTML =
                 "<td style='color:blue;cursor:pointer'>" + student.rollNo + "</td>" +
                 "<td>" + student.name + "</td>" +
                 "<td>" + percentage + "%</td>" +
-                "<td>" + (isTestFail ? "Fail" : "Pass") + "</td>";
+                "<td>" + (isTestFail ? "Fail" : "Pass") + "</td>" +
+                "<td>" + grade(percentage) + "</td>";
 
             tr.onclick = function () {
                 showDetails(student);
@@ -747,28 +797,32 @@
 
             tableBody.appendChild(tr);
         }
+
+
         let unitTotal = unitPass + unitFail;
         let midTotal = midPass + midFail;
         let finalTotal = finalPass + finalFail;
 
+
+
+
         document.getElementById("failCount").textContent = failCount;
         document.getElementById("passCount").textContent = passCount;
+
         document.getElementById("passCountPer").textContent = passCountPer;
         document.getElementById("failCountPer").textContent = failCountPer;
+
         document.getElementById("unitPass").innerText = unitPass;
         document.getElementById("unitFail").innerText = unitFail;
-        document.getElementById("unitPer").innerText =
-            unitTotal ? ((unitPass / unitTotal) * 100).toFixed(2) + "%" : "0%";
+        document.getElementById("unitPer").innerText = unitTotal ? ((unitPass / unitTotal) * 100).toFixed(2) + "%" : "0%";
 
         document.getElementById("midPass").innerText = midPass;
         document.getElementById("midFail").innerText = midFail;
-        document.getElementById("midPer").innerText =
-            midTotal ? ((midPass / midTotal) * 100).toFixed(2) + "%" : "0%";
+        document.getElementById("midPer").innerText = midTotal ? ((midPass / midTotal) * 100).toFixed(2) + "%" : "0%";
 
         document.getElementById("finalPass").innerText = finalPass;
         document.getElementById("finalFail").innerText = finalFail;
-        document.getElementById("finalPer").innerText =
-            finalTotal ? ((finalPass / finalTotal) * 100).toFixed(2) + "%" : "0%";
+        document.getElementById("finalPer").innerText = finalTotal ? ((finalPass / finalTotal) * 100).toFixed(2) + "%" : "0%";
 
     }
 
@@ -870,13 +924,6 @@
     }
 
 
-    function grade(p) {
-        if (p >= 80) return "A+";
-        if (p >= 60) return "B+";
-        if (p >= 50) return "B";
-        if (p >= 35) return "C";
-        return "Fail";
-    }
 
     /* ===== DASHBOARD ===== */
     function updateDashboard() {
@@ -892,8 +939,13 @@
         const test = testType.value;
 
         studentMarks.forEach(s => {
+
+
+            let testType = ["unitTest", "midTest", "finalTest"];
             let tot = 0, c = 0;
-            ["unitTest", "midTest", "finalTest"].forEach(t => {
+
+
+            testType.forEach(t => {
                 if (s[t]) { tot += s[t].Marathi + s[t].Hindi + s[t].English; c += 3; }
             });
             if (c) {
@@ -909,7 +961,7 @@
                 if (s[test].English >= 35) e++;
             }
 
-            ["unitTest", "midTest", "finalTest"].forEach(t => {
+            testType.forEach(t => {
                 if (!s[t]) return;
 
                 s[t].Marathi >= 35 ? testStats[t].M.p++ : testStats[t].M.f++;
@@ -935,10 +987,26 @@
         finalE.innerText = `${testStats.finalTest.E.p}/${testStats.finalTest.E.f}`;
 
 
-        document.getElementById("topperName").textContent = tn;
-        document.getElementById("topperMark").textContent = tp.toFixed(2) + "%";
-        document.getElementById("LowerName").textContent = ln;
-        document.getElementById("LowerMark").textContent = lp.toFixed(2) + "%";
+
+
+        const topperMarkEl = document.getElementById("topperMark");
+        const lowerMarkEl = document.getElementById("LowerMark");
+        const topperNameEl = document.getElementById("topperName");
+        const lowerNameEl = document.getElementById("LowerName");
+
+        if (studentMarks.length > 0 && isFinite(tp) && isFinite(lp)) {
+            topperMarkEl.textContent = tp.toFixed(2) + "%";
+            lowerMarkEl.textContent = lp.toFixed(2) + "%";
+            topperNameEl.textContent = tn;
+            lowerNameEl.textContent = ln;
+        } else {
+            topperMarkEl.textContent = "0%";
+            lowerMarkEl.textContent = "0%";
+            topperNameEl.textContent = "-";
+            lowerNameEl.textContent = "-";
+        }
+
+
 
 
     }

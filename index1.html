@@ -541,50 +541,50 @@ function showStudentName() {
 
 /////addStudentMarks 
 
-// addStudentMarks.addEventListener("submit", function (event) {
-//     event.preventDefault();
+addStudentMarks.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-//     const rollNo = Number(document.getElementById("searchRollNo").value);
-//     const student = studentsMaster.find(s => s.rollNo === rollNo);
-//     if (!student) {
-//         return alert("Student not found!");
-//     }
+    const rollNo = Number(document.getElementById("searchRollNo").value);
+    const student = studentsMaster.find(s => s.rollNo === rollNo);
+    if (!student) {
+        return alert("Student not found!");
+    }
 
-//     const testType = document.getElementById("testType").value;
-//     console.log("testType==>", testType)
+    const testType = document.getElementById("testType").value;
+    console.log("testType==>", testType)
 
-//     const existingStudent = studentMarks.find(s => s.rollNo === rollNo);
-//     console.log("")
-//     if (existingStudent && existingStudent[testType]) {
-//         showAlert(`Marks for ${testType} are already filled for this student`);
-//         return;
-//     }
-//     const marksEntry = {
-//         rollNo,
-//         name: student.name,
-//         [testType]: {
-//             Marathi: Number(document.getElementById("marathi").value),
-//             Hindi: Number(document.getElementById("hindi").value),
-//             English: Number(document.getElementById("english").value),
-//         }
-//     };
+    const existingStudent = studentMarks.find(s => s.rollNo === rollNo);
+    console.log("")
+    if (existingStudent && existingStudent[testType]) {
+        showAlert(`Marks for ${testType} are already filled for this student`);
+        return;
+    }
+    const marksEntry = {
+        rollNo,
+        name: student.name,
+        [testType]: {
+            Marathi: Number(document.getElementById("marathi").value),
+            Hindi: Number(document.getElementById("hindi").value),
+            English: Number(document.getElementById("english").value),
+        }
+    };
 
-//     // Check if student already has marks saved
-//     const existingIndex = studentMarks.findIndex(s => s.rollNo === rollNo);
-//     if (existingIndex >= 0) {
-//         studentMarks[existingIndex] = {
-//             ...studentMarks[existingIndex],
-//             ...marksEntry
-//         };
-//     } else {
-//         studentMarks.push(marksEntry);
-//     }
+    // Check if student already has marks saved
+    const existingIndex = studentMarks.findIndex(s => s.rollNo === rollNo);
+    if (existingIndex >= 0) {
+        studentMarks[existingIndex] = {
+            ...studentMarks[existingIndex],
+            ...marksEntry
+        };
+    } else {
+        studentMarks.push(marksEntry);
+    }
 
-//     localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
-//     showAlert("Marks saved!");
-//     tabledata()
-//     addStudentMarks.reset();
-// });
+    localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+    showAlert("Marks saved!");
+    tabledata()
+    addStudentMarks.reset();
+});
 
 // Add/Edit Student Marks
 addStudentMarks.addEventListener("submit", function (event) {
