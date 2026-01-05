@@ -496,7 +496,9 @@
                     <tr>
                         <th>Roll</th>
                         <th>Name</th>
-                        <th>%</th>
+                        <th onclick="sortByPercentage()" style="cursor:pointer">
+                            Percentage <span id="percentArrow">▼</span>
+                        </th>
                         <th>Status</th>
                         <th>Grade</th>
                     </tr>
@@ -533,7 +535,7 @@
                         <th>English</th>
                         <th>%</th>
                         <th>Grade</th>
-                        <th>Action</th>
+                        <th colspan="2">Action</th>
 
                     </tr>
                 </thead>
@@ -570,11 +572,23 @@
     </div>
 
 
-    <!-- Alert Modal -->
-    <div class="alertcss" id="alertModal">
-        <div class="alertcss-content">
-            <span class="alertcss-close" id="closeAlertModal">&times;</span>
-            <p id="alertModalMessage">-</p>
+
+    <div id="editModal" style="display:none;
+     position:fixed;top:0;left:0;width:100%;height:100%;
+     background:rgba(0,0,0,0.5);">
+
+        <div style="background:#fff;padding:20px;
+         width:300px;margin:100px auto;border-radius:6px;">
+
+            <h3>Edit Student</h3>
+
+            <input type="number" id="StudenteditRollNo" placeholder="Roll No">
+            <br><br>
+            <input type="text" id="editName" placeholder="Name">
+            <br><br>
+
+            <button onclick="saveStudent()">Save</button>
+            <button onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
@@ -613,7 +627,6 @@
         });
         localStorage.setItem("studentsMaster", JSON.stringify(studentsMaster));
         addStudentMaster.reset();
-        showAlert("Student Added");
     });
 
     function resetAddMarksForm() {
@@ -625,50 +638,48 @@
     }
 
 
-
-
-    /* ===== ADD MARKS ===== */
+    // Add/Edit Student Marks
     addStudentMarks.addEventListener("submit", function (event) {
         event.preventDefault();
 
         const rollNo = Number(document.getElementById("searchRoll").value);
         const student = studentsMaster.find(s => s.rollNo === rollNo);
-
         if (!student) {
             return alert("Student not found!");
         }
 
         const testType = document.getElementById("testType").value;
-        console.log("testType==>", testType);
 
-        const existingStudent = studentMarks.find(s => s.rollNo === rollNo);
-
-        if (existingStudent && existingStudent[testType]) {
-            showAlert(`Marks for ${testType} are already filled for this student`);
-            return;
-        }
-
-        const marksEntry = {
-            rollNo,
-            name: student.name,
-            [testType]: {
-                Marathi: Number(document.getElementById("marathi").value),
-                Hindi: Number(document.getElementById("hindi").value),
-                English: Number(document.getElementById("english").value)
-            }
+        const marksObj = {
+            Marathi: Number(document.getElementById("marathi").value),
+            Hindi: Number(document.getElementById("hindi").value),
+            English: Number(document.getElementById("english").value),
         };
 
+        const existingIndex = studentMarks.findIndex(s => s.rollNo === rollNo);
 
-        studentMarks.push(marksEntry);
-
+        if (existingIndex >= 0) {
+            studentMarks[existingIndex] = {
+                ...studentMarks[existingIndex],
+                [testType]: marksObj,
+                name: student.name
+            };
+        } else {
+            // New student marks entry
+            studentMarks.push({
+                rollNo,
+                name: student.name,
+                [testType]: marksObj
+            });
+        }
 
         localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
         renderTable();
-        updateDashboard();
         addStudentMarks.reset();
-
-        showAlert("Student Marks Added");
     });
+
+
+
 
     function grade(p) {
         p = Number(p);
@@ -677,6 +688,53 @@
         if (p >= 50) return "B";
         if (p >= 35) return "C";
         return "Fail";
+    }
+let percentageSortOrder = "desc"; // default: high to low
+
+    function sortByPercentage() {
+
+        studentMarks.sort(function (a, b) {
+
+            var perA = getStudentPercentage(a);
+            var perB = getStudentPercentage(b);
+
+            if (percentageSortOrder === "desc") {
+                return perB - perA; // high → low
+            } else {
+                return perA - perB; // low → high
+            }
+        });
+
+        // toggle order
+        if (percentageSortOrder === "desc") {
+            percentageSortOrder = "asc";
+        } else {
+            percentageSortOrder = "desc";
+        }
+
+        renderTable();
+    }
+    function getStudentPercentage(student) {
+
+        var total = 0;
+        var count = 0;
+
+        var testTypes = ["unitTest", "midTest", "finalTest"];
+
+        for (var i = 0; i < testTypes.length; i++) {
+            var test = testTypes[i];
+
+            if (student[test]) {
+                total += student[test].Marathi;
+                total += student[test].Hindi;
+                total += student[test].English;
+                count += 3;
+            }
+        }
+
+        if (count === 0) return 0;
+
+        return (total / (count * 100)) * 100;
     }
 
     /* ===== TABLE ===== */
@@ -862,11 +920,14 @@
                 <td>${e}</td>
                 <td>${percent}%</td>
                 <td>${grade(percent)}</td>
-                <td>
-                <button onclick="openEditModal(${student.rollNo}, '${t}')">
-                    Edit
-                </button>
+                
+                <td onclick="openEditModal(${student.rollNo}, '${t}')">
+                   ✎
                 </td>
+                 <td onclick="deteteTest(${student.rollNo}, '${t}')">
+                    🧲
+                </td>
+              
                 `;
 
             tbody.appendChild(tr);
@@ -901,6 +962,24 @@
         document.getElementById("editTestModal").style.display = "flex";
     }
 
+
+
+    function deteteTest(rollNo, testType) {
+        const student = studentMarks.find(s => s.rollNo === rollNo);
+
+        console.log("detelr", testType);
+        delete student[testType];
+        localStorage.setItem("studentMarks", JSON.stringify(studentMarks));
+        confirm("Test Delete Suffefuly")
+
+        renderTable();
+
+        renderStudentMaster();
+
+
+
+
+    }
     function saveEditedMarks() {
         const rollNo = Number(document.getElementById("editRollNo").value);
         const testType = document.getElementById("editTestType").value;
@@ -917,7 +996,6 @@
         closeEditModal();
         closeDetails();
         renderTable();
-        updateDashboard();
     }
     function closeEditModal() {
         document.getElementById("editTestModal").style.display = "none";
@@ -925,97 +1003,6 @@
 
 
 
-    /* ===== DASHBOARD ===== */
-    function updateDashboard() {
-        let tp = -Infinity,
-            lp = Infinity,
-            tn = "-",
-            ln = "-",
-            pass = 0,
-            fail = 0,
-            m = 0,
-            h = 0,
-            e = 0;
-        const test = testType.value;
-
-        studentMarks.forEach(s => {
-
-
-            let testType = ["unitTest", "midTest", "finalTest"];
-            let tot = 0, c = 0;
-
-
-            testType.forEach(t => {
-                if (s[t]) { tot += s[t].Marathi + s[t].Hindi + s[t].English; c += 3; }
-            });
-            if (c) {
-                const p = (tot / (c * 100)) * 100;
-                if (p > tp) { tp = p; tn = s.name; }
-                if (p < lp) { lp = p; ln = s.name; }
-            }
-            if (s[test]) {
-                if (s[test].Marathi >= 35 && s[test].Hindi >= 35 && s[test].English >= 35) pass++;
-                else fail++;
-                if (s[test].Marathi >= 35) m++;
-                if (s[test].Hindi >= 35) h++;
-                if (s[test].English >= 35) e++;
-            }
-
-            testType.forEach(t => {
-                if (!s[t]) return;
-
-                s[t].Marathi >= 35 ? testStats[t].M.p++ : testStats[t].M.f++;
-                s[t].Hindi >= 35 ? testStats[t].H.p++ : testStats[t].H.f++;
-                s[t].English >= 35 ? testStats[t].E.p++ : testStats[t].E.f++;
-            });
-
-
-        });
-        // Unit Test
-        unitM.innerText = ` Pass: ${testStats.unitTest.M.p} Fail:${testStats.unitTest.M.f}`;
-        unitH.innerText = `Pass:${testStats.unitTest.H.p}/ Fail:${testStats.unitTest.H.f}`;
-        unitE.innerText = `${testStats.unitTest.E.p}/${testStats.unitTest.E.f}`;
-
-        // Mid Test
-        midM.innerText = `${testStats.midTest.M.p}/${testStats.midTest.M.f}`;
-        midH.innerText = `${testStats.midTest.H.p}/${testStats.midTest.H.f}`;
-        midE.innerText = `${testStats.midTest.E.p}/${testStats.midTest.E.f}`;
-
-        // Final Test
-        finalM.innerText = `${testStats.finalTest.M.p}/${testStats.finalTest.M.f}`;
-        finalH.innerText = `${testStats.finalTest.H.p}/${testStats.finalTest.H.f}`;
-        finalE.innerText = `${testStats.finalTest.E.p}/${testStats.finalTest.E.f}`;
-
-
-
-
-        const topperMarkEl = document.getElementById("topperMark");
-        const lowerMarkEl = document.getElementById("LowerMark");
-        const topperNameEl = document.getElementById("topperName");
-        const lowerNameEl = document.getElementById("LowerName");
-
-        if (studentMarks.length > 0 && isFinite(tp) && isFinite(lp)) {
-            topperMarkEl.textContent = tp.toFixed(2) + "%";
-            lowerMarkEl.textContent = lp.toFixed(2) + "%";
-            topperNameEl.textContent = tn;
-            lowerNameEl.textContent = ln;
-        } else {
-            topperMarkEl.textContent = "0%";
-            lowerMarkEl.textContent = "0%";
-            topperNameEl.textContent = "-";
-            lowerNameEl.textContent = "-";
-        }
-
-
-
-
-    }
-
-    let testStats = {
-        unitTest: { M: { p: 0, f: 0 }, H: { p: 0, f: 0 }, E: { p: 0, f: 0 } },
-        midTest: { M: { p: 0, f: 0 }, H: { p: 0, f: 0 }, E: { p: 0, f: 0 } },
-        finalTest: { M: { p: 0, f: 0 }, H: { p: 0, f: 0 }, E: { p: 0, f: 0 } }
-    };
 
 
     /* ===== UTILS ===== */
@@ -1034,16 +1021,24 @@
     function renderStudentMaster() {
         const tbody = document.getElementById("studentMasterBody");
         tbody.innerHTML = "";
+
         for (let i = 0; i < studentsMaster.length; i++) {
             const tr = document.createElement("tr");
 
             tr.innerHTML = `
-            <td>${studentsMaster[i].rollNo}</td>
+            <td>
+                <span style="cursor:pointer;color:blue"
+                      onclick="StudentopenEditModal(${i})">
+                    ${studentsMaster[i].rollNo}
+                </span>
+            </td>
             <td>${studentsMaster[i].name}</td>
-            `;
+        `;
+
             tbody.appendChild(tr);
         }
     }
+
     function filterStudentMaster() {
         const query = document.getElementById("studentMasterSearch").value.toLowerCase();
         const rows = document.querySelectorAll("#studentMasterBody tr");
@@ -1055,7 +1050,7 @@
     }
 
     renderTable();
-    updateDashboard();
+
     renderStudentMaster();
 
 
@@ -1066,30 +1061,63 @@
 
 
 
-    // alertModal  
-    const alertModal = document.getElementById("alertModal");
-    const alertModalMessage = document.getElementById("alertModalMessage");
-    const closeAlertModal = document.getElementById("closeAlertModal");
 
-    function showAlert(message) {
-        alertModalMessage.textContent = message;
-        alertModal.style.display = "flex";
+    let editIndex = null;
 
-        setTimeout(() => {
-            alertModal.style.display = "none";
-            if (addStudentMarks) addStudentMarks.reset();
-        }, 1000);
+    function StudentopenEditModal(index) {
+        editIndex = index;
+
+        document.getElementById("StudenteditRollNo").value =
+            studentsMaster[index].rollNo;
+
+        document.getElementById("editName").value =
+            studentsMaster[index].name;
+
+        document.getElementById("editModal").style.display = "block";
     }
 
-    closeAlertModal.addEventListener("click", function () {
-        alertModal.style.display = "none";
-    });
+    function saveStudent() {
 
-    window.addEventListener("click", function (event) {
-        if (event.target === alertModal) {
-            alertModal.style.display = "none";
+        var newRollNo = Number(
+            document.getElementById("StudenteditRollNo").value
+        );
+
+        var newName = document.getElementById("editName").value.trim();
+
+        if (newRollNo === 0 || newName === "") {
+            alert("Roll No and Name are required");
+            return;
         }
-    });
+
+        // check duplicate roll number
+        for (var i = 0; i < studentsMaster.length; i++) {
+            if (
+                studentsMaster[i].rollNo === newRollNo &&
+                i !== editIndex
+            ) {
+                alert("Roll No already exists");
+                return;
+            }
+        }
+
+        studentsMaster[editIndex].rollNo = newRollNo;
+        studentsMaster[editIndex].name = newName;
+
+        localStorage.setItem(
+            "studentsMaster",
+            JSON.stringify(studentsMaster)
+        );
+
+        renderStudentMaster();
+        closeModal();
+    }
+
+
+
+    function closeModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+
 
 </script>
 
